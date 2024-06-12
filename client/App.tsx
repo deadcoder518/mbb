@@ -1,22 +1,32 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { PrayerTimes } from './types';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { PrayerTimes, PrayerTimesSchema } from './types';
 import { getPrayerTimes } from './api';
 
 export default function App() {
-  const [data, setData] = useState<PrayerTimes>();
+  const [data, setData] = useState<PrayerTimes>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
     getPrayerTimes().then((data) => {
       setData(data);
-    }).catch(console.error);
+    }).catch((e) => {
+      console.log(e);
+      setError(true);
+    }).finally(() => {
+      setIsLoading(false);
+    })
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
+      {isLoading && <ActivityIndicator size="large" />}
+      {error && <Text>Error</Text> }
+      {data && data.map((day) => (
+        <Text key={day.DayOfMonth}>{day.AsrJamaah}</Text>
+      ))}
     </View>
   );
 }
