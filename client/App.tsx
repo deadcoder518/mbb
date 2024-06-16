@@ -1,7 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { PrayerTimes, PrayerTimesSchema } from './types';
+import { PrayerTimes } from './types';
 import { getPrayerTimes } from './api';
 
 export default function App() {
@@ -10,14 +9,21 @@ export default function App() {
   const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
-    getPrayerTimes().then((data) => {
-      setData(data);
-    }).catch((e) => {
-      console.log(e);
-      setError(true);
-    }).finally(() => {
-      setIsLoading(false);
-    })
+    const loadPrayerTimes = async () => {
+      setError(false);
+      setIsLoading(true);
+      try {
+        const data = await getPrayerTimes();
+        setData(data);
+      } catch (e) {
+        console.error(e);
+        setError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadPrayerTimes();
   }, []);
 
   return (
